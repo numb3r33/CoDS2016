@@ -8,11 +8,11 @@ def eval_models(clfs, X, y):
 	scores = []
 
 	for train_index, test_index in cv:
-		preds_common = np.zeros((len(test_index), 2))
+		preds_common = np.zeros((len(test_index)))
 
 		for clf in clfs:
-			X_train, y_train = X[train_index], y[train_index]
-			X_test, y_test = X[test_index], y[test_index]
+			X_train, y_train = X.iloc[train_index], y.iloc[train_index]
+			X_test, y_test = X.iloc[test_index], y.iloc[test_index]
 
 			clf.fit(X_train, y_train)
 
@@ -20,9 +20,9 @@ def eval_models(clfs, X, y):
 			print  "score: %f" % np.mean((y_test - preds) ** 2)
 			preds_common += preds
 
-		preds_common /= 4.
+		preds_common /= len(clfs) * 1.
 
-		scores.append(np.mean((y_test - probs_common) ** 2))
+		scores.append(np.mean((y_test - preds_common) ** 2))
 		print "combined score: %f " %(scores[-1])
 
-	print np.mean(scores), np.std(scores)
+	return np.mean(scores), np.std(scores)
