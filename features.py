@@ -45,14 +45,14 @@ class FeatureTransformer(BaseEstimator):
 	def _process_dates(self, X):
 		'Only process date of birth for now'
 
-		year_of_birth = X.dob.dt.year
+		year_of_birth = X.dob.dt.year # returns year of birth
 
 		return year_of_birth.reshape(-1, 1)
 
 	def _process_categorical_features(self, X):
 		'Encode categorical features into numerical features'
 
-		self.categorical_features_columns = ['jobcity', 'gender', 'degree', 'specialization', 'collegestate']
+		self.categorical_features_columns = ['gender', 'degree', 'specialization', 'collegestate']
 		categorical_features = []
 
 		for cat in self.categorical_features_columns:
