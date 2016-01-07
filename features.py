@@ -1,5 +1,6 @@
 from sklearn.base import BaseEstimator
 from sklearn.preprocessing import LabelEncoder
+from sklearn.feature_extraction import DictVectorizer
 
 import pandas as pd
 import numpy as np
@@ -29,7 +30,9 @@ class FeatureTransformer(BaseEstimator):
 
 	def fit_transform(self, X, y=None):
 		date_features = self._process_dates(X)
-		categorical_features = self._process_categorical_features(X)
+		
+		# categorical_features = self._process_categorical_features(X)
+		categorical_features = self._one_hot_encoded_features(X)
 		numerical_features = self._process_numerical_features(X)
 
 		features = []
@@ -37,7 +40,7 @@ class FeatureTransformer(BaseEstimator):
 		features.append(date_features)
 		features.append(categorical_features)
 		features.append(numerical_features)
-		
+
 		features = np.hstack(features)
 		
 		return features
@@ -64,6 +67,23 @@ class FeatureTransformer(BaseEstimator):
 
 		return np.array(categorical_features).T
 
+	def _one_hot_encoded_features(self, X):
+		'One hot encoding of categorical variables'
+
+		self.categorical_features_columns = ['gender', 'degree', 'specialization', 'collegestate']
+		X_categorical = X[self.categorical_features_columns]
+
+		data = pd.concat([self.X[self.categorical_features_columns], self.X_test[self.categorical_features_columns]], axis=0)
+		one_hot_encoded_features = data.T.to_dict().values()
+
+		vec = DictVectorizer()
+		vec.fit(one_hot_encoded_features)
+
+		encoded_features = vec.transform(X_categorical.T.to_dict().values())
+
+		return encoded_features.toarray()
+
+
 	def _process_numerical_features(self, X):
 		'Return numerical features as it is'
 
@@ -85,7 +105,8 @@ class FeatureTransformer(BaseEstimator):
 	def transform(self, X):
 		
 		date_features = self._process_dates(X)
-		categorical_features = self._process_categorical_features(X)
+		# categorical_features = self._process_categorical_features(X)
+		categorical_features = self._one_hot_encoded_features(X)
 		numerical_features = self._process_numerical_features(X)
 
 		features = []
